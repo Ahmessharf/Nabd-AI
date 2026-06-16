@@ -28,4 +28,7 @@ env/
 # Windows
 Thumbs.db
 Data
-src/assets/files/
+
+# Patient assets, large JSON exports and local vector stores
+src/assets/**/*.json
+src/assets/**/vector_store/

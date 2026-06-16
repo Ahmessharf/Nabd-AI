@@ -7,13 +7,16 @@ logger = logging.getLogger(__name__)
 
 class ChatController:
     def __init__(self):
-        # 1. Initialize the LLM Engine
-        self.llm = ChatGroq(
-            api_key=Config.GROQ_API_KEY,
-            model_name="llama-3.1-8b-instant",
-            temperature=0.3
-        )
-        
+        # 1. Initialize the LLM Engine (all settings now read from config.py)
+        if Config.CURRENT_LLM == "GROQ":
+            self.llm = ChatGroq(
+                api_key=Config.GROQ_API_KEY,
+                model_name=Config.LLM_MODEL_GROQ,
+                temperature=Config.LLM_TEMPERATURE
+            )
+        else:
+            raise ValueError(f"Unsupported LLM engine: {Config.CURRENT_LLM}")
+
         # 2. In-Memory Store for Chat History
         # Format: {"session_id": [{"role": "user", "content": "..."}, {"role": "ai", "content": "..."}]}
         self.chat_history_store = {}
@@ -34,10 +37,10 @@ class ChatController:
 
     def generate_answer(self, query: str, retrieved_chunks: list, session_id: str = "default_session"):
         """Generates an answer using Vector Context and Chat History."""
-        
+
         # 1. Format the medical context from the Vector DB
         context_text = "\n".join([chunk.page_content for chunk in retrieved_chunks])
-        
+
         # 2. Retrieve and format previous chat history for this user
         session_history = self.get_session_history(session_id)
         history_text = self.format_history_for_prompt(session_history)
@@ -74,5 +77,3 @@ class ChatController:
         session_history.append({"role": "ai", "content": final_answer})
 
         return final_answer
-    
-    
