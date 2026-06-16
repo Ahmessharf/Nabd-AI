@@ -5,23 +5,26 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from .VectorDBInterface import VectorDBInterface
 
 class FaissDBProvider(VectorDBInterface):
-    def __init__(self, config):
+    def __init__(self, config, project_id: str = "patient_001"):
         # 1. Inject configuration
         self.config = config
         self.db = None
-        
-        # 2. Initialize the Embedding Model (The engine that converts text to numbers)
+
+        # 2. Store the patient/project identifier (no longer hardcoded)
+        self.project_id = project_id
+
+        # 3. Initialize the Embedding Model (The engine that converts text to numbers)
         self.embeddings = HuggingFaceEmbeddings(model_name=self.config.EMBEDDING_MODEL)
-        
-        # 3. Define the storage path for the Vector DB (Patient 001 for now)
-        self.store_path = os.path.join(self.config.FILES_DIR, "patient_001", "vector_store")
+
+        # 4. Define the storage path dynamically based on the given project_id
+        self.store_path = os.path.join(self.config.FILES_DIR, self.project_id, "vector_store")
 
     def connect(self):
         # FAISS is a local vector store, so connecting means loading the file from disk
         if self.is_collection_existed("default"):
             self.db = FAISS.load_local(
-                folder_path=self.store_path, 
-                embeddings=self.embeddings, 
+                folder_path=self.store_path,
+                embeddings=self.embeddings,
                 allow_dangerous_deserialization=True
             )
         else:
@@ -46,7 +49,7 @@ class FaissDBProvider(VectorDBInterface):
             self.db = FAISS.from_texts(texts=texts, embedding=self.embeddings, metadatas=metadata)
         else:
             self.db.add_texts(texts=texts, metadatas=metadata)
-        
+
         # Save the updated index locally
         self.db.save_local(self.store_path)
 
@@ -54,10 +57,10 @@ class FaissDBProvider(VectorDBInterface):
         # Ensure the database is loaded before searching
         if not self.db:
             self.connect()
-        
+
         if not self.db:
             return []
-            
+
         # Perform similarity search and return the top matching chunks
         results = self.db.similarity_search(query, k=limit)
         return results

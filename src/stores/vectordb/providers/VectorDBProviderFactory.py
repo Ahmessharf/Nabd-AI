@@ -6,10 +6,10 @@ class VectorDBProviderFactory:
         # Inject the centralized configuration into the factory
         self.config = config
 
-    def create(self, provider: str):
+    def create(self, provider: str, project_id: str = "patient_001"):
         # Dynamically route to the FAISS provider implementation
         if provider == VectorDBEnums.FAISS.value:
-            return FaissDBProvider(config=self.config)
+            return FaissDBProvider(config=self.config, project_id=project_id)
 
         # Return None if an unsupported database engine is requested
         return None

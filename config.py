@@ -16,20 +16,22 @@ class Config:
     # ==========================================
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DATA_DIR = os.path.join(BASE_DIR, "Data")
-    FILES_DIR = os.path.join(BASE_DIR, "src", "assets", "files")
+    FILES_DIR = os.path.join(BASE_DIR, "src", "assets")
 
     # ==========================================
     # 3. Local & Cloud AI Model Specifications
     # ==========================================
-    EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-    
+    EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
     # Available LLM engines configuration
     LLM_MODEL_GROQ = "llama-3.1-8b-instant"
     LLM_MODEL_HF = "google/gemma-2-9b-it"
-    
+
     # Engine Switch: Configured to "GROQ" for ultra-fast and stable execution
-    CURRENT_LLM = "GROQ" 
-    
+    CURRENT_LLM = "GROQ"
+
+    # Controls randomness of the LLM answers. 0.0 = most deterministic/stable
+    # (best for a medical assistant). Defined ONCE here only.
     LLM_TEMPERATURE = 0.0
 
     # Engine Switch for Vector Database
@@ -38,8 +40,6 @@ class Config:
     # ==========================================
     # 4. Text Ingestion & Chunking Parameters
     # ==========================================
-    LLM_TEMPERATURE = 0.1
     CHUNK_SIZE = 1000
     CHUNK_OVERLAP = 200
-
     
